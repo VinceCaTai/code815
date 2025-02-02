@@ -62,7 +62,7 @@ benchmark_results <- microbenchmark(
   R_gradient_BB = gradient.descent.BB.lsq_R(y, A, x0, lambda),
   R_stochastic_gradient = stochastic.gradient.descent.lsq_R(y, A, x0, lambda, batch = batch_size, initial.step.size = 1),
   
-  times = 10  # Number of repetitions
+  times = 10
 )
 print(benchmark_results)
 autoplot(benchmark_results) +
@@ -93,6 +93,8 @@ R_res <- gradient.descent.lsq_R(y, A, x0, lambda, gamma)
 all.equal(Rcpp_res$x, R_res$x)
 # Check loss differences
 all.equal(Rcpp_res$loss, R_res$loss)
+
+
 
 
 
