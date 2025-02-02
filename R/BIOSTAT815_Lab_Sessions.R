@@ -1,4 +1,5 @@
 getwd()
+#[1] "/Users/taiyang/Desktop/BIOSTAT_Courses/BIOSTAT815/code815"
 install.packages("Rcpp")
 install.packages("microbenchmark")
 install.packages("bigsnpr")
@@ -96,8 +97,49 @@ all.equal(Rcpp_res$loss, R_res$loss)
 
 
 ########Jan 27 Lecture Practice
-print("Rcpp Results:")
-print(beta_est_rcpp)
-
-print("R Results:")
+source("Lec_Practice/IRWLS_Poisson.R")
+sourceCpp("Lec_Practice/IRWLS_Poisson_Rcpp.cpp")
+##Sample Data
+set.seed(124) 
+n <- 500
+p <- 6
+X <- matrix(rnorm(n * p), n, p)
+beta_true <- rnorm(p)
+y <- rpois(n, lambda = exp(X %*% beta_true))  
+##Implementation in R
+beta_est_r <- IRWLS_Poisson(X, y)
+print("R Implementation Results:")
 print(beta_est_r)
+##Implementation in Rcpp
+beta_est_rcpp <- IRWLS_Poisson_Rcpp(X, y)
+print("Rcpp Implementation Results:")
+print(beta_est_rcpp)
+##Benchmark Process
+benchmark_results <- microbenchmark(
+  R_Implementation = IRWLS_Poisson(X, y),
+  Rcpp_Implementation = IRWLS_Poisson_Rcpp(X, y),
+  times = 10
+)
+print(benchmark_results)
+##Visualization
+autoplot(benchmark_results) +
+  labs(
+    title = "Benchmark: R vs Rcpp Implementations",
+    subtitle = "Comparison of Execution Time for IRWLS Poisson Regression",
+    x = "Implementation",
+    y = "Execution Time (µs)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 12, face = "bold"),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14, face = "bold"),
+    axis.title.y = element_text(size = 14, face = "bold"),
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 14, hjust = 0.5, face = "italic"),
+    legend.position = "none"
+  ) +
+  scale_y_log10() + 
+  geom_jitter(width = 0.2, alpha = 0.7, color = "blue") + 
+  geom_boxplot(alpha = 0.5, outlier.shape = NA) 
+
