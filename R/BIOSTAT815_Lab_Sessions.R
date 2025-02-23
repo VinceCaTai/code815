@@ -145,3 +145,56 @@ autoplot(benchmark_results) +
   geom_jitter(width = 0.2, alpha = 0.7, color = "blue") + 
   geom_boxplot(alpha = 0.5, outlier.shape = NA) 
 
+
+###Quiz1 Test
+install.packages("/Users/taiyang/quiz1", repos = NULL, type = "source")
+library(quiz1)
+## Test function
+set.seed(142)
+X <- cbind(1, matrix(rnorm(100), nrow=20))
+beta <- c(1, -0.5, 0.3, 0.2, -0.1, 0.4)
+y <- rpois(20, lambda = exp(X %*% beta))
+result <- poisson_ridge(X, y, lambda = 1)
+print(result$beta)
+## Test-small dataset
+set.seed(100)
+X_small <- cbind(1, matrix(rnorm(20), nrow=10))  # 10 samples, 2 features (+ intercept)
+beta_true_small <- c(0.5, -1.2, 0.8)
+y_small <- rpois(10, lambda = exp(X_small %*% beta_true_small))
+# Fit the Poisson Ridge model
+result_small <- poisson_ridge(X_small, y_small, lambda = 0.5)
+print(result_small$beta)  # Compare with beta_true_small
+## Test - mid dataset
+set.seed(200)
+X_med <- cbind(1, matrix(rnorm(500), nrow=100))  # 100 samples, 5 features (+ intercept)
+beta_true_med <- c(1, -0.5, 0.3, 0.2, -0.1, 0.4)
+y_med <- rpois(100, lambda = exp(X_med %*% beta_true_med))
+# Fit the Poisson Ridge model
+result_med <- poisson_ridge(X_med, y_med, lambda = 1)
+print(result_med$beta)  # Compare with beta_true_med
+## Test-large dataset
+set.seed(300)
+X_large <- cbind(1, matrix(rnorm(200000), nrow=10000))  # 10,000 samples, 20 features (+ intercept)
+beta_true_large <- runif(21, -1, 1)  # 21 coefficients
+y_large <- rpois(10000, lambda = exp(X_large %*% beta_true_large))
+# Fit the Poisson Ridge model
+system.time({
+  result_large <- poisson_ridge(X_large, y_large, lambda = 5)
+})
+print(result_large$beta[1:5])  # Print first 5 coefficients
+## Test-Highly correlated features
+set.seed(400)
+X_corr <- matrix(rnorm(1000), nrow=50, ncol=20)
+X_corr[, 2] <- X_corr[, 1] * 0.95 + rnorm(50, 0, 0.1)  # Highly correlated feature
+X_corr <- cbind(1, X_corr)  # Add intercept
+beta_true_corr <- runif(21, -1, 1)
+y_corr <- rpois(50, lambda = exp(X_corr %*% beta_true_corr))
+# Fit model
+result_corr <- poisson_ridge(X_corr, y_corr, lambda = 2)
+print(result_corr$beta[1:5])
+
+
+
+
+
+
